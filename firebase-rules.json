@@ -1,0 +1,313 @@
+{
+  "rules": {
+    "sensor_data": {
+      "$deviceId": {
+        ".read": "auth != null && root.child('user_profiles').child(auth.uid).child('devices').hasChild($deviceId)",
+        ".write": "auth != null && root.child('user_profiles').child(auth.uid).child('devices').hasChild($deviceId)",
+        "$timestamp": {
+          ".validate": "newData.hasChildren(['timestamp', 'sensors', 'system'])",
+          "timestamp": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "sensors": {
+            ".validate": "newData.hasChildren(['temperature', 'humidity', 'moisture', 'nitrogen', 'phosphorus', 'potassium'])",
+            "temperature": {
+              ".validate": "newData.isNumber() && newData.val() >= -50 && newData.val() <= 100"
+            },
+            "humidity": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "moisture": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "nitrogen": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500"
+            },
+            "phosphorus": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200"
+            },
+            "potassium": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500"
+            },
+            "data_transfer_quality": {
+              ".validate": "newData.isString() && ['excellent', 'good', 'poor'].contains(newData.val())"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "system": {
+            ".validate": "newData.hasChildren(['battery', 'signal', 'uptime'])",
+            "battery": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "signal": {
+              ".validate": "newData.isNumber() && newData.val() >= -120 && newData.val() <= 0"
+            },
+            "uptime": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "ai_processed": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "ai_recommendations": {
+      "$deviceId": {
+        ".read": "auth != null && root.child('user_profiles').child(auth.uid).child('devices').hasChild($deviceId)",
+        "$timestamp": {
+          ".validate": "newData.hasChildren(['deviceId', 'timestamp', 'recommendations', 'priority', 'cost_estimate'])",
+          "deviceId": {
+            ".validate": "newData.isString() && newData.val() === $deviceId"
+          },
+          "timestamp": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "recommendations": {
+            ".validate": "newData.isList()",
+            "$recId": {
+              ".validate": "newData.hasChildren(['type', 'priority', 'action', 'reasoning', 'confidence'])",
+              "type": {
+                ".validate": "newData.isString() && ['watering', 'fertilizer', 'environmental', 'pesticide', 'harvest'].contains(newData.val())"
+              },
+              "priority": {
+                ".validate": "newData.isString() && ['critical', 'high', 'medium', 'low'].contains(newData.val())"
+              },
+              "action": {
+                ".validate": "newData.isString() && newData.val().length > 0"
+              },
+              "quantity": {
+                ".validate": "newData.isString()"
+              },
+              "frequency": {
+                ".validate": "newData.isString()"
+              },
+              "reasoning": {
+                ".validate": "newData.isString() && newData.val().length > 0"
+              },
+              "confidence": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+              },
+              "costEstimate": {
+                ".validate": "newData.isNumber() && newData.val() >= 0"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "priority": {
+            ".validate": "newData.isString() && ['HIGH', 'MEDIUM', 'LOW'].contains(newData.val())"
+          },
+          "cost_estimate": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "processed_at": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "user_profiles": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid",
+        "email": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "farm_name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "location": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "devices": {
+          ".validate": "newData.isList()",
+          "$deviceId": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          }
+        },
+        "settings": {
+          ".validate": "newData.hasChildren(['alert_thresholds', 'notifications'])",
+          "alert_thresholds": {
+            ".validate": "newData.hasChildren(['temperature', 'humidity', 'moisture', 'nitrogen', 'phosphorus', 'potassium'])",
+            "temperature": {
+              ".validate": "newData.hasChildren(['critical_min', 'critical_max', 'optimal_min', 'optimal_max'])",
+              "critical_min": {
+                ".validate": "newData.isNumber()"
+              },
+              "critical_max": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_max": {
+                ".validate": "newData.isNumber()"
+              }
+            },
+            "humidity": {
+              ".validate": "newData.hasChildren(['critical_min', 'critical_max', 'optimal_min', 'optimal_max'])",
+              "critical_min": {
+                ".validate": "newData.isNumber()"
+              },
+              "critical_max": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_max": {
+                ".validate": "newData.isNumber()"
+              }
+            },
+            "moisture": {
+              ".validate": "newData.hasChildren(['critical', 'warning', 'optimal_min', 'optimal_max', 'high_max'])",
+              "critical": {
+                ".validate": "newData.isNumber()"
+              },
+              "warning": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_max": {
+                ".validate": "newData.isNumber()"
+              },
+              "high_max": {
+                ".validate": "newData.isNumber()"
+              }
+            },
+            "nitrogen": {
+              ".validate": "newData.hasChildren(['critical', 'warning', 'optimal_min'])",
+              "critical": {
+                ".validate": "newData.isNumber()"
+              },
+              "warning": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              }
+            },
+            "phosphorus": {
+              ".validate": "newData.hasChildren(['critical', 'warning', 'optimal_min'])",
+              "critical": {
+                ".validate": "newData.isNumber()"
+              },
+              "warning": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              }
+            },
+            "potassium": {
+              ".validate": "newData.hasChildren(['critical', 'warning', 'optimal_min'])",
+              "critical": {
+                ".validate": "newData.isNumber()"
+              },
+              "warning": {
+                ".validate": "newData.isNumber()"
+              },
+              "optimal_min": {
+                ".validate": "newData.isNumber()"
+              }
+            }
+          },
+          "notifications": {
+            ".validate": "newData.isBoolean()"
+          }
+        },
+        "created_at": {
+          ".validate": "newData.isString()"
+        },
+        "last_login": {
+          ".validate": "newData.isString()"
+        },
+        "updated_at": {
+          ".validate": "newData.isString()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "reports": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid",
+        "$reportType": {
+          "$dateKey": {
+            ".validate": "newData.hasChildren(['url', 'filename', 'generatedAt', 'size'])",
+            "url": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "filename": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "generatedAt": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "size": {
+              ".validate": "newData.isNumber() && newData.val() > 0"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "ai_feedback": {
+      "$deviceId": {
+        "$timestamp": {
+          ".read": "auth != null && root.child('user_profiles').child(auth.uid).child('devices').hasChild($deviceId)",
+          ".write": "auth != null && root.child('user_profiles').child(auth.uid).child('devices').hasChild($deviceId)",
+          ".validate": "newData.hasChildren(['userId', 'deviceId', 'recommendationId', 'feedback', 'submitted_at'])",
+          "userId": {
+            ".validate": "newData.isString() && newData.val() === auth.uid"
+          },
+          "deviceId": {
+            ".validate": "newData.isString() && newData.val() === $deviceId"
+          },
+          "recommendationId": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "feedback": {
+            ".validate": "newData.hasChildren(['applied', 'effectiveness', 'notes'])",
+            "applied": {
+              ".validate": "newData.isBoolean()"
+            },
+            "effectiveness": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 5"
+            },
+            "notes": {
+              ".validate": "newData.isString() && newData.val().length <= 500"
+            }
+          },
+          "submitted_at": {
+            ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
